@@ -1,0 +1,514 @@
+@extends('layouts.app')
+
+@section('content')
+
+<style>
+    .hero {
+        min-height: calc(100vh - 60px);
+        background: url('./img/delivery.jpg')center/contain no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+
+Home Page
+<!-- <button id="CheckOut" modal-trigger class="green">Checkout</button> -->
+<div id="successMessage"></div>
+
+<ul id="idi">
+    <li></li>
+</ul>
+<header class="hero">
+    <div class="banner">
+        <h1 class="banner-title">Easy Delivery</h1>
+        <a href="#shoppingList" class="banner-btn">Shop now</a>
+    </div>
+</header>
+<section class="product" id="shoppingList">
+    <div class="section-title">
+        <h2>Our Products</h2>
+    </div>
+
+    <div class="product-center">
+
+        <!-- {{$products}} -->
+        @foreach($products as $product)
+        <article class="product materialboxed">
+            <!-- materialboxed -->
+            <div class="img-container card hoverable">
+                <img src="img/{{$product->image_path}}" alt="product" class="product-img">
+                <div class="emelie">
+                    <button class="bag-btn addToCart" data-id="{{$product->id}}" data-name="{{$product->productName}}"
+                        data-price="{{$product->productPrice}}" data-img="{{$product->image_path}}"><i
+                            class="fas fa-shopping-cart">Buy</i></button>
+                    <button data-target="{{$product->id}}" class="modal-trigger view-btn" method="POST" name="views"
+                        action="/views" type="submit" data-id="{{$product->id}}" data-name="{{$product->productName}}"
+                        data-price="{{$product->productPrice}}" data-img="{{$product->image_path}}"><i
+                            class="fas fa-eye" style="margin-left: -2px;"><span>Details</span></i></button>
+                </div>
+
+            </div>
+            <div class="card-action grey lighten-2 z-depth-1">
+                <h3 style="padding-bottom:0px;">{{$product->productName}}</h3>
+                <h4>Price:${{$product->productPrice}}</h4>
+            </div>
+        </article>
+
+
+        <div id="{{$product->id}}" class="modal card">
+            <div class="modal-content row card-content">
+                <h4><i> Details </i></h4>
+                <div class="col s6 card-image materialboxed ">
+                    <img src="img/{{$product->image_path}}" alt="product" class="product-img">
+
+                </div>
+                <div class="col s6">
+                    <h5>Product: {{$product->productName}}</h5>
+                    <p>Price:{{$product->productPrice}}</p>
+                    <br>
+                    <div>
+                        <p><i> {{$product->productDetail}}</i></p>
+                        <!-- width: 100%;
+                                    height: 120
+                                px
+                                ; -->
+                    </div>
+                    <div style="position: absolute;bottom: 100px;">
+                        <button class="addToCart btn" data-id="{{$product->id}}" data-name="{{$product->productName}}"
+                            data-price="{{$product->productPrice}}" data-img="{{$product->image_path}}"><i
+                                class="fas fa-shopping-cart"> Buy</i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+
+
+        @endforeach
+
+    </div>
+
+</section>
+
+
+<div class="modal modalShadow">
+    <div class="modal-content">
+        <h2 class="centerTxt">Checkout</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>S/N</th>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th class="sp">Product-id</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- <tr>
+                        <th>TOTAL</th>
+                        <th></th>
+                        <th class="totalCost"></th>
+                    </tr> -->
+            </tbody>
+        </table>
+        <p>
+            <button id="closeModal" class="btn">Close</button>
+            <button class="right btn" id="clearModal">Clear</button>
+
+        </p>
+        <div class="center">
+            <br>
+            <button id="contactCheck" modal-trigger class="btn CheckOut">CheckOut</button>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal" id="contactModal">
+    <div class="card-panel modal-content grey lighten-3 center">
+        <ul id="saveErr"></ul>
+        <form id="contactForm" method="POST" action="/home" enctype="multipart/form-data">
+            <div class="row">
+                <!-- <div class="input-field col s6">
+                        <input type="text" class="validate" name="pIddd" id="pIddd"  />
+                        <label for="pIddd">Product id</label>
+                    </div> -->
+
+                <div class="input-field col s6">
+                    <input type="text" class="validate" name="contactName" id="contactName" />
+                    <label for="contactName">First Name</label>
+                </div>
+                <div class="input-field col s6">
+                    <input type="text" class="validate" name="contactLName" id="contactLName" placeholder="Optional" />
+                    <label for="contactLName">Last Name</label>
+                </div>
+                <div class="input-field col s6">
+                    <label for="contactEmail">Email</label>
+                    <input type="email" class="validate" name="contactEmail" id="contactEmail" />
+                </div>
+                <div class="input-field col s6">
+                    <input type="tel" class="validate" required name="contactNumber" id="contactNumber" data-length="11"
+                        onKeyPress="if(this.value.length==11) return false;" />
+                    <label for="contactNumber">Phone Number</label>
+                </div>
+
+                <div class="input-field col s6">
+                    <textarea id="contactMessage" name="contactMessage" class="materialize-textarea"
+                        data-length="50"></textarea>
+                    <label for="contactMessage">Message</label>
+                </div>
+            </div>
+            <button type="submit" id="contactBtn" name="contactBtn" class="btn teal waves-effect waves-light">
+                Send<i style="position:relative;top:0.3rem;left:0.5rem;" class="material-icons">send</i>
+            </button>
+
+        </form>
+    </div>
+
+</div>
+
+
+
+@endsection
+@section('script')
+<script>
+    customerItemArr = [];
+    product = '';
+
+    // console.log(customerItemArr);
+    //   class UI{
+    //     setupApp() {
+    //         customerItemArr = storage.getCart();
+    //     }
+    // }
+
+    // //local Storage
+    // class storage {
+    //     static saveProducts(customerItemArr) {
+    //         localStorage.setItem("product", JSON.stringify(customerItemArr));
+    //     }
+
+    //     static saveCart(customerItemArr) {
+    //         localStorage.setItem('product', JSON.stringify(customerItemArr));
+    //     }
+
+    //     static getCart() {
+    //         return localStorage.getItem('product') ? JSON.parse(localStorage.getItem('product')) : ['empty'];  //TINERAY STATEMENT IF/ELSE
+    //     }
+
+    // }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        product = JSON.parse(window.localStorage.getItem('product'));
+        console.log(product);
+
+
+
+        // const ui = new UI();
+        // console.log('i see u');
+        // // const products = new Products();
+
+        // // setup App
+        // ui.setupApp();
+        // storage.saveProducts(customerItemArr);
+        // alreadyClicked();
+        //   customerItemArr =  product;
+
+    });
+    $(function () {
+
+        $('.view-btn').on('click', function (e) {
+            e.preventDefault();
+            let views = $(this).attr('data-id');
+            console.log(views);
+            let url = $(this).attr('action');
+            let mtd = $(this).attr('method');
+            console.log(mtd);
+            console.log(url);
+
+
+
+            let formData = new FormData();
+            formData.append('views', views);
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                type: mtd,
+                url: url,
+                data: formData,
+                processData: false,
+                contentType: false,
+                // dataType:'json',
+                // success: function (response) {
+                //     console.log(response);
+                // }
+            });
+        });
+
+        //  console.log(product);
+
+        //    productLen = product.length;
+        //    console.log(productLen);
+        //    console.log(customerItemArr);
+
+        if (product) {
+            // console.log(product);
+            console.log('product');
+            // customerItemArr.push(product)
+
+            customerItemArr = product;
+            // console.log(product);
+            // console.log(customerItemArr);
+            let cartNo = product.length;
+            console.log(cartNo);
+
+            let resultTotal = $('.cart-items').text(cartNo);
+
+
+        } else {
+            console.log('not here');
+        }
+        $('.addToCart').click(function (e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            var thisPrdtName = $(this).attr('data-name');
+            var thisPrdtImg = $(this).attr('data-img');
+            var thisPrdtPrice = $(this).attr('data-price');
+            var thisPrdtAmount = $(this).attr('data-id');
+            let tempArr = [];
+            pushItemToArray(thisPrdtName, tempArr);
+            pushItemToArray(thisPrdtImg, tempArr);
+            pushItemToArray(thisPrdtPrice, tempArr);
+            pushItemToArray(thisPrdtAmount, tempArr);
+
+            pushItemToArray(tempArr, customerItemArr);
+            $(this).removeClass('addToCart').text('Added').prop('disabled', true);
+
+            // console.log(tempArr);
+            // let cartItems = $('.cart-items').text("");
+            // let tempTotal = 0;
+            // let itemsTotal = 0;                      
+            // itemsTotal += thisPrdtAmount;
+            // // cartItems.textContent = itemsTotal;     //updates the cart numbers
+            // let result =  $('.cart-items').html(itemsTotal);
+            // console.log(itemsTotal);
+
+
+            if (customerItemArr.length > 0) {
+                // console.log(customerItemArr.length);
+
+                customerItemArr.forEach(function (item, index) {
+                    var i = 0;
+                    // var i > customerItemArr.length
+                    var itemsTotals = index + 1;
+                    let result = $('.cart-items').text(itemsTotals);
+                    // let productLen = $('.cart-items').text(itemsTotals);
+
+                    // console.log(itemsTotals);
+                });
+
+            }
+
+            //  storage.saveCart(customerItemArr);
+            window.localStorage.setItem('product', JSON.stringify(customerItemArr));
+
+        });
+
+
+        $('.CheckOut').on('click', function (e) {
+            e.preventDefault();
+            console.log('CheckOut');
+            if (customerItemArr.length > 0) {
+                $(this).prop('disabled', true);
+                // console.log(customerItemArr);
+                var totalCost = 0;
+                customerItemArr.forEach(function (item, index) {
+                    var sn = index + 1;
+                    var tableRowContent = '<tr id="' + item[3] + '">\
+                                                <td>' + sn + '</td>\
+                                                <td>' + item[0] + '</td>\
+                                                <td>' + item[2] + '</td>\
+                                                <td>' + item[3] + '</td>\
+                                                <td><a href="#!" class="red-text deleteProduct" id="pau" data-id="'+ item[3] + '"><i class="material-icons">delete</i></a></td>\
+                                            </tr>';
+
+                    $('.modalShadow table').append(tableRowContent);
+                    totalCost += parseInt(item[2]);
+                    // console.log(totalCost);
+                    //pasrse init add up number e.g addition
+
+
+
+                });
+
+                $('.modalShadow table').append('<tr class="totalCostParent"><th>TOTAL</th><th></th><th class="totalCost"></th></tr>');
+                $('.totalCost').text(totalCost);
+                // $('.container').addClass('shadow');
+                // $('.modalShadow').removeClass('hide');
+
+                $('.modalShadow').modal('open');
+
+
+            } else {
+                alert('Please add a product to cart before proceeding to checkout');
+            }
+
+
+            $('.deleteProduct').click(function (e) {
+                if (customerItemArr.length < 0) {
+                    $('.modalShadow').modal('close');
+                } else {
+                    // console.log(e);
+                    e.preventDefault();
+                    let productId = $(this).attr('data-id');
+                    console.log(productId);
+                    customerItemArr.filter(item => productId !== item[3]);
+                    console.log(customerItemArr);
+
+                    //  totalCost += parseInt(item[2]);
+                    // ('.modalShadow table').append('<tr class="totalCostParent"><th>TOTAL</th><th></th><th class="totalCost"></th></tr>');
+                    // $('.totalCost').text(totalCost);
+                    (e.target.parentElement.parentElement.parentElement).remove();
+                    // let removeProduct =  product.filter(item => productId !== item[3]);
+                    // window.localStorage.removeItem('product');
+
+
+
+                }
+
+
+            });
+
+
+        });
+
+
+
+        /// PUT DELETE A SINGLE PRODUCT HERE---
+        // let idOff = [];
+        // customerItemArr.forEach(function (item, index) {
+        //     // console.log(item);
+        //     let idTodelete = idOff.push(item[3]);
+        //     console.log(idOff);
+        //     console.log(idTodelete);
+
+        //     // $('#contactForm').prepend(
+        //     //     '<input type="text" id="pId" name="productId" value="' + prdIds + '">'
+        //     // );
+        //     let see =  $('.delProduct').val(idTodelete)
+        //     $('.delProduct').click(function (params) {
+        //         // idTodelete.filter(function(item) {
+        //         //     return item !== idTodelete;
+        //         // });
+        //     });
+
+        // });
+
+        $('#clearModal').click(function () {
+            $('.modalShadow table').html('');
+            customerItemArr.length = 0;
+            window.localStorage.removeItem('product');
+
+            // console.log(customerItemArr);
+            // clearCart();
+            let i = 0;
+            let result = $('.cart-items').text(i);
+            $('.bag-btn').text('buy');
+            // $('.addToCart').addClass('addToCart');
+            $('.bag-btn').prop('disabled', false);
+
+            $('.modalShadow').modal('close');
+
+
+
+        });
+
+        function pushItemToArray(item, array) {
+            array.push(item);
+        }
+
+        $('#contactCheck').click(function () {
+            $('#contactModal').modal('open');
+
+
+            $(document).on('submit', '#contactForm', function (e) {
+                e.preventDefault();
+                let prdIds = [];
+                customerItemArr.forEach(function (item, index) {
+                    prdIds.push(item[3])
+                });
+
+                console.log(prdIds);
+                $('#contactForm').prepend(
+                    '<input type="text" id="pId" name="productId" value="' + prdIds + '">'
+                );
+
+                var data = {
+                    'contactName': $('#contactName').val(),
+                    'contactEmail': $('#contactEmail').val(),
+                    'contactNumber': $('#contactNumber').val(),
+                    'contactMessage': $('#contactMessage').val(),
+                    'productId': $('#pId').val(),
+
+                }
+                // console.log(data);
+                let formData = new FormData($('#contactForm')[0]);
+                // console.log(formData);
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: "/home",
+                    data: data,
+                    success: function (response) {
+                        console.log(response);
+                        $('#saveErr').html("");
+                        $('#saveErr').addClass("red-text");
+                        if (response.status == 400) {
+                            $.each(response.errors, function (key, errValues) {
+                                $('#saveErr').append('<li>' + errValues + '</li>');
+                            });
+                        } else {
+                            $('#saveErr').html("");
+                            $('#successMessage').addClass("green white-text");
+                            $('#successMessage').text(response.message);
+                            $('#contactModal').modal('close');
+                            $('#contactModal').find('input').val("");
+                            // clearCart();
+                            $('.modalShadow table ').html('');
+                            let i = 0;
+                            let result = $('.cart-items').text(i);
+                            $('.modalShadow').modal('close');
+
+                        }
+                    }
+                });
+            });
+
+            // $('.modalShadow').modal('close');  
+        });
+
+
+
+    });
+</script>
+@endsection

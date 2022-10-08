@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../public/DataTables-1.11.3/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="../public/DataTables-1.11.3/css/dataTables.bootstrap4.min.css">
+</head>
+<body>
+
+    <h2>Password to deliveyAgent Aa123456</h2>
+    Schema::create('products', function (Blueprint $table) {
+    $table->increments('id');
+    $table->string('slug');
+    $table->string('productName');
+    $table->string('productPrice');
+    $table->mediumText('productDetail');
+    $table->string('image_path');
+    $table->timestamps('dateCreated');
+    $table->unsignedBigInteger('user_id');
+    $table->foreign('user_id')->references('id')->on('users');
+    });
+
+    @foreach($products as $product)
+    <div class="product-center">
+        <article class="product">
+            <div class="img-container card hoverable">
+                <img src="./img/delivery.jpg" alt="product" class="product-img">
+                <a href="contact.php" class="bag-btn">
+                    <i class="fas fa-shopping-cart">
+                        Buy
+                    </i>
+                </a>
+            </div>
+            <h3>{{$product->productName}}</h3>
+            <h4>Price:{{$product->productPrice}}</h4>
+        </article>
+    </div>
+    @endforeach
+
+
+    {{$products}}
+
+    <!-- if user is logged In -->
+
+    @if(Auth::check())
+    <div><a href="/blog/create" class="btn">create Post</a></div>
+    @endif
+  
+     <!-- if user == logged in nd userId == PostId -->
+    @if(isset(Auth::user()->id) && Auth::user()->id == $post->id);
+            <!-- SHOW D USERS PARTICULAR POST -->
+    @endif
+    @foreach($products as $product)
+        <h2>{{$product->slug}}</h2>
+        <h2>{{$product->id}}</h2>
+        <h2>{{$product->user_id}}</h2>
+        <h2>{{$product->user->name}}</h2>
+        <ul>
+            <li class="red-text">{{$product->productName}}</li>
+            <li class="red-text">{{$product->productPrice}}</li>
+            <li class="red-text">{{$product->productDetail}}</li>
+            <li class="red-text">{{date("jS M Y", strtotime($product->updated_at)) }}</li>
+            <li><a href="/blog/{{$product->slug}}">Read more</a></li>
+        </ul>
+    @endforeach    
+    
+    <script type="text/javascript" src="js/jquery-3.5.1.js"></script>
+    <script src="../public/js/jquery-3.3.1.min.js"></script>
+    <script src="../public/DataTables-1.11.3/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../public/DataTables-1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="../public/DataTables-1.11.3/js/dataTables.dataTables.min.js"></script>
+    <script src="js/materialize.js"></script>
+</body>
+</html>
+
+
+
+<div id="home" class="content">
+
+    <div class="container card">
+        <div class="card-content"
+            style="padding-left: 24px; padding-right: 24px; padding-top: 0px; padding-bottom: 0px;">
+            <h2>All Products</h2>
+
+            @if(session()->has('success'))
+            <div id="" class="loadSuccess">
+                <div class="modal-content green">
+                    <h6 class="white-text">
+                        {{session()->get('success')}}
+                    </h6>
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+                </div>
+            </div>
+        @endif
+            <div id="successMessage"></div>
+
+
+            @if(Auth::check())
+            <a class="btn-floating btn-large waves-effect waves-light teal right modal-trigger pulse"
+                href="#productModal"><i class="material-icons">add</i></a>
+            @endif
+
+            @if(Auth::check())
+            <div><a href="/pages/adminController" class="btn">create Post</a></div>
+            @endif
+
+
+        </div>
+        <table class="striped responsive-table" id="dataTable">
+            <thead>
+                <tr>
+                    <th>S/N</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Product</th>
+                    <th>Posted By</th>
+                    <th>Modified</th>
+                    <th><i class="material-icons blue-text">edit</i></th>
+                    <th><i class="material-icons red-text">delete</i></th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+                @php($No = 1)
+
+                @if(count($products) > 1)
+                @foreach($products as $product)
+
+                <tr>
+                    <td>{{$No++}}</td>
+                    <td>{{$product->productName}}</td>
+                    <td>{{$product->productPrice}}</td>
+                    <td>{{$product->productDetail}}</td>
+                    <td><img src="{{asset('img/'.$product->image_path)}}" class="responsive-img" width="60px"></td>
+                    <td>{{$product->user->name}}</td>
+                    <!-- <td>{{date("jS M Y", strtotime($product->updated_at)) }}</td> -->
+                    <td>{{$product->updated_at}}</td>
+                    <!-- <td><a href="editModal" id="editModal" class="editProductModal  btn  modal-trigger green white-text">{{$product->id}}<i class="material-icons">edit</i></a></td> -->
+                    <td><a href="#"
+                            class="btn btn-large waves-effect waves-light green editMod modal-trigger">{{$product->id}}<i
+                                class="material-icons">edit</i></a></td>
+                    <!-- <td>
+                            <span class="delProductModal red-text" >
+                                <form action="/pages/{{$product->id}}" method="POST">
+                                    @csrf
+                                    @method('delete')
+                                    
+                                    <div>
+                                        <a href="#" class="btn" type="submit"><i class="material-icons">delete</i>
+                                        <button type="submit" class="btn waves-effect waves-light red" id="doDeleteproduct"><i class="material-icons">delete</i></button>
+                                        <button class="btn-large waves-effect waves-light modal-close">No</button>
+                                    </div>
+                                </form>
+                            </span>
+                         </td> -->
+                <tr>
+                    @endforeach
+                    @php($No++)
+                    @else
+
+                <tr>
+                    <td colspan="4" class="center-align"><i>No Product yet</i>
+                    <td>
+                </tr>
+                @endif
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+
+
+<!-- edit modal -->
+
+
+<div id="editModal1" class="modal">
+    <div class="modal-content">
+        <h4>Edit Product</h4>
+
+
+
+        <div class="row">
+            <!-- SHOW D USERS PARTICULAR POST -->
+            <form method="POST" action="/pages" enctype="multipart/form-data" id="editForm">
+
+                @csrf
+                @method('PUT')
+                <div class="input-field col s6">
+                    <input type="text" id="productName" name="productName" value="{{$product->productName}}" class="val"
+                        placeholder="Product Name">
+                    <label for="productName">Product Name</label>
+                </div>
+                <div class="input-field col s6">
+                    <input type="text" id="productPrice" name="productPrice" value="{{$product->productPrice}}"
+                        class="val2" placeholder="Product Price">
+                    <label for="productPrice">Product Price</label>
+                </div>
+
+                <div class="input-field col s12">
+                    <input type="text" id="productDetail" name="productDetail" value="{{$product->productDetail}}"
+                        class="val3" placeholder="Product Description">
+                    <label for="proDetails">Product Description</label>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="editproductId" id="editproductId">
+                    <div class="input-field col s12">
+                        <button class="btn waves-effect waves-light right" type="submit" name="productEditBtn"
+                            id="productEditBtn">Edit
+                            <i class="material-icons right">edit</i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+
+<td>'+item.productPrice+'</td>\
+<td>'+item.productDetail+'</td>\
+<td>'+item.user_id+'</td>\
+<td><a href='#' class='editProductModal blue-text' value="'+item.id+'"><i
+            class='material-icons'>edit</i></a></td>\
+<td><a href='#' class='delProductModal red-text' value="'+item.id+'" ><i
+            class='material-icons'>delete</i></a></td>\
+
+            @if($errors->any())
+            <div class="grey" id="uploadError">
+                <ul>
+                    @foreach($errors->all() as $error)
+                    <li class="red-text">{{$error}}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif

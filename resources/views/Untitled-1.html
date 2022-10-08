@@ -1,0 +1,403 @@
+// @foreach($products as $product)
+
+// <article class="product">
+    // <div class="img-container card hoverable">
+        // <img src="{{asset('img/'.$product->image_path)}}" alt="product" class="product-img">
+        // <a href="#" class="bag-btn">
+            // <i class="fas fa-shopping-cart">
+                // Buy
+                // </i>
+            // </a>
+        // </div>
+    // <div class="card-action grey lighten-2 z-depth-1">
+        // <h3 style="padding-bottom:0px;">{{$product->productName}}</h3>
+        // <h4>Price:{{$product->productPrice}}</h4>
+        // </div>
+    // </article>
+// @endforeach
+
+<div class="l3">
+    <img src="./images/' + itemImg + '" alt="">
+    <div class="addToCart"><span class="itemName">' + itemName + '</span>
+        <br>
+        <span class="price">N' + itemPrice + '</span>
+        <button class="right addToCart" data-name="' + itemName + '" data-price="' + itemPrice + '"
+            data-img="' + itemImg + '">Add to Cart</button>
+
+
+
+        <div class="l3"><img src="./images/' + itemImg + '" alt="">
+            <div class="addToCart"><span class="itemName">' + itemName + '</span>
+                <br>
+                <span class="price">N' + itemPrice +'</span>
+                <button class="right addToCart" data-name="' + itemName + '" data-price="' + itemPrice + '"
+                    data-img="' + itemImg + '">Add to Cart
+                </button>
+            </div>
+        </div>
+
+        foreach ($request->pIdd as $key => $value) {
+        $details = new Contact;
+        $details->contactName = $request->input('contactName');
+        $details->contactEmail = $request->input('contactEmail');
+        $details->contactNumber = $request->input('contactNumber');
+        $details->subject = $request->input('contactMessage');
+        $details->products_id = $request->products_id[$key];
+
+        $details->save();
+        return response()->json([
+        'status' => 200,
+        'message' => 'Product Added Successfully',
+        ]);
+        }
+
+        @extends('layouts.app')
+
+        @section('content')
+        <div class="container">
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach($errors->all() as $error)
+                    <li>
+                        {{$error}}
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            @if(session()->get('message'))
+            <div class="alert alert-success" role="alert">
+                <strong>Success: </strong>{{session()->get('message')}}
+            </div>
+            @endif
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">{{Auth::user()->name}}'s Profile</div>
+
+                        <div class="card-body">
+                            @if (session('status'))
+                            <div class="alert alert-success" role="alert">
+                                {{ session('status') }}
+                            </div>
+                            @endif
+                            @if($message = Session::get('success'))
+                            <div class="alert alert-success">
+                                <p>{{$message}}</p>
+                            </div>
+                            @endif
+                            <form action="{{route('home')}}" method="POST">
+                                @csrf
+                                <div class="form-group">
+                                    <label for="name"><strong>Name:</strong></label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="{{Auth::user()->name}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email"><strong>Email:</strong></label>
+                                    <input type="text" class="form-control" id="email" value="{{Auth::user()->email}}"
+                                        name="email">
+                                </div>
+                                <button class="btn btn-primary" type="submit">Update Profile</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endsection
+
+        public function profileUpdate(Request $request){ //validation rules $request->validate([ 'name'
+        =>'required|min:4|string|max:255', 'email'=>'required|email|string|max:255' ]); $user =Auth::user(); $user->name
+        =
+        $request['name']; $user->email = $request['email']; $user->save(); return back()->with('message','Profile
+        Updated'); }
+
+
+
+
+<script>
+    $(function () {
+
+        customerItemArr = [];
+        fetchAllProduct();
+        function fetchAllProduct() {
+
+            $.ajax({
+                type: "GET",
+                url: "/home",
+                dataType: "json",
+                success: function (response) {
+                    console.log(response.product);
+                    if (response.product != "") {
+                        $.each(response.product, function (key, item) {
+                            var itemAmount = item.id;
+                            var itemName = item.productName;
+                            var itemImg = item.image_path;
+                            var itemPrice = item.productPrice;
+                            $('.product-center').append(
+                                '<article class="product materialboxed">\
+                                    <div class="img-container card hoverable">\
+                                        <img src="img/'+ itemImg + '" alt="product" class="product-img">\
+                                        <button method="POST" name="views" action="/home" type="submit" href="#" class="bag-btn addToCart" data-id="'+ itemAmount + '" data-name="' + itemName + '" data-price="' + itemPrice + '" data-img="' + itemImg + '"><i class="fas fa-shopping-cart">Buy</i></button>\
+                                    </div>\
+                                    <div class="card-action grey lighten-2 z-depth-1">\
+                                        <h3 style="padding-bottom:0px;">'+ itemName + '</h3>\
+                                        <h4>Price:'+ itemPrice + '</h4>\
+                                    </div>\
+                                </article>'
+                            );
+
+
+                        });
+                        $('.addToCart').on('click', function (e) {
+                            e.preventDefault();
+                            let views = $(this).attr('data-id');
+                            console.log(views);
+                            let url = $(this).attr('action');
+                            let mtd = $(this).attr('method');
+                            console.log(mtd);
+                            console.log(url);
+
+                            let formData = new FormData();
+                            formData.append('views', views);
+                            $.ajaxSetup({
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                }
+                            });
+
+                            $.ajax({
+                                type: mtd,
+                                url: url,
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                // dataType:'json',
+                                success: function (response) {
+                                    console.log(response);
+                                }
+                            });
+                        })
+                        $('.addToCart').click(function (e) {
+
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+
+                            var thisPrdtName = $(this).attr('data-name');
+                            var thisPrdtImg = $(this).attr('data-img');
+                            var thisPrdtPrice = $(this).attr('data-price');
+                            var thisPrdtAmount = $(this).attr('data-id');
+                            let tempArr = [];
+                            pushItemToArray(thisPrdtName, tempArr);
+                            pushItemToArray(thisPrdtImg, tempArr);
+                            pushItemToArray(thisPrdtPrice, tempArr);
+                            pushItemToArray(thisPrdtAmount, tempArr);
+
+                            pushItemToArray(tempArr, customerItemArr);
+                            $(this).removeClass('addToCart').text('Added').prop('disabled', true);
+
+                            // console.log(tempArr);
+                            // let cartItems = $('.cart-items').text("");
+                            // let tempTotal = 0;
+                            // let itemsTotal = 0;                      
+                            // itemsTotal += thisPrdtAmount;
+                            // // cartItems.textContent = itemsTotal;     //updates the cart numbers
+                            // let result =  $('.cart-items').html(itemsTotal);
+                            // console.log(itemsTotal);
+                            if (customerItemArr.length > 0) {
+                                customerItemArr.forEach(function (item, index) {
+                                    var i = 0;
+                                    // var i > customerItemArr.length
+                                    var itemsTotals = index + 1;
+                                    let result = $('.cart-items').text(itemsTotals);
+                                    // console.log(itemsTotals);
+                                });
+
+                            }
+
+                        });
+                        // let result =  $('.cart-items').html(itemsTotal);
+                        // console.log(itemsTotal);
+
+
+
+                        $('#CheckOut').click(function (e) {
+                            e.preventDefault();
+
+                            if (customerItemArr.length > 0) {
+                                $(this).prop('disabled', true);
+                                console.log(customerItemArr);
+                                var totalCost = 0;
+                                customerItemArr.forEach(function (item, index) {
+                                    var sn = index + 1;
+                                    var tableRowContent = '<tr>\
+                                                                <td>' + sn + '</td>\
+                                                                <td>' + item[0] + '</td>\
+                                                                <td>' + item[2] + '</td>\
+                                                                <td id="burn">' + item[3] + '</td>\
+                                                                <td><a href="#" class="red-text delProduct" id="pau" data-id="'+ item.id + '"><i class="material-icons">delete</i></a></td>\
+                                                            </tr>';
+
+                                    $('#modalShadow table ').append(tableRowContent);
+                                    totalCost += parseInt(item[2]);
+
+                                    // console.log(totalCost);
+                                    //pasrse init add up number e.g addition
+                                });
+                                $('#modalShadow table ').append('<tr><th>TOTAL</th><th></th><th class="totalCost"></th></tr>');
+                                $('.totalCost').text(totalCost);
+                                // $('.container').addClass('shadow');
+                                // $('.modalShadow').removeClass('hide');
+                                $('#modalShadow').modal('open');
+                            } else {
+                                alert('Please add a product to cart before proceeding to checkout');
+                            }
+                        });
+
+                        $('#closeModal').click(function () {
+                            $('#modalShadow table ').html('<tr><th>TOTAL</th><th></th><th class="totalCost"></th></tr>');
+                            $('#CheckOut').prop('disabled', false);
+                            $('#modalShadow').modal('close');
+                        });
+
+                        $('#clearModal').click(function () {
+                            $('#modalShadow table ').html('');
+                            let customerItemArr = [];
+                            console.log(customerItemArr);
+                            let tempArr = [];
+                            console.log(tempArr);
+                            pushItemToArray() = [];
+                            // console.log(pushItemToArray);
+                            clearCart();
+
+                        });
+
+
+                        function pushItemToArray(item, array) {
+                            array.push(item);
+                        }
+
+                    } else {
+                        console.log('No products yet');
+                    }
+
+                    $('#contactCheck').click(function () {
+                        $('#contactModal').modal('open');
+
+
+                        $(document).on('submit', '#contactForm', function (e) {
+                            e.preventDefault();
+                            let prdIds = [];
+                            customerItemArr.forEach(function (item, index) {
+                                prdIds.push(item[3])
+                                //     // var fdfd =  [item[3]];
+                                //     // var idArr2 = new Array();
+                                //     // console.log(idArr2);
+
+                                //     var fdfd =  item;
+                                //     var idArr = new Array();
+
+                                //     // $('#contactForm').prepend(
+                                //     //     '<input type="text" id="pId" name="productId" value="'+fdfd+'">'
+                                //     // );
+                                //     $('#contactForm').prepend(
+                                //         '<input type="text" id="pId" name="productId" value="'+fdfd+'">'
+                                //     );
+
+                                //     // var idiot = $('input[name="productId"]').append({
+                                //     //     'value':fdfd,
+                                //     // });
+                                //     // var idiot = $('input[name="productId"]').val();
+                                //     // console.log(idiot);
+                                //     // let fuidf =  $("#pIddd").val(fdfd);
+                                //     // console.log(fuidf);
+
+                            });
+                            // let item = new Array();;
+                            // item = customerItemArr;
+                            console.log(prdIds);
+                            $('#contactForm').prepend(
+                                '<input type="text" id="pId" name="productId" value="' + prdIds + '">'
+                            );
+
+                            var data = {
+                                'contactName': $('#contactName').val(),
+                                'contactEmail': $('#contactEmail').val(),
+                                'contactNumber': $('#contactNumber').val(),
+                                'contactMessage': $('#contactMessage').val(),
+
+                                'productId': $('#pId').val(),
+
+                            }
+                            // console.log(data);
+                            let formData = new FormData($('#contactForm')[0]);
+                            // console.log(formData);
+
+                            $.ajaxSetup({
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                }
+                            });
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/home",
+                                data: data,
+                                success: function (response) {
+                                    console.log(response);
+                                    $('#saveErr').html("");
+                                    $('#saveErr').addClass("red-text");
+                                    if (response.status == 400) {
+                                        $.each(response.errors, function (key, errValues) {
+                                            $('#saveErr').append('<li>' + errValues + '</li>');
+                                        });
+                                    } else {
+                                        $('#saveErr').html("");
+                                        $('#successMessage').addClass("green white-text");
+                                        $('#successMessage').text(response.message);
+                                        $('#contactModal').modal('close');
+                                        $('#contactModal').find('input').val("");
+                                        clearCart();
+                                    }
+                                }
+                            });
+                        });
+
+                        // $('#modalShadow').modal('close');  
+                    });
+
+                    function clearCart() {
+
+                        //      let cartitem = customerItemArr.map(item => item.id);
+                        //     console.log(cartitem);
+
+                        //     cartitem.forEach(id => this.removeItem(id));
+                        //    function removeItem(id) {
+                        //        tempArr = tempArr.filter(item => item.id !== id);
+
+                        //    } 
+
+                        //    let  customerItemArr = [];
+                        //    console.log(customerItemArr);
+                        //     let  tempArr = [];
+                        //     console.log(tempArr);
+                        //     pushItemToArray = [];
+                        //     console.log(pushItemToArray);
+
+                        $('.cart-items').text("0");
+                        // $('#modalShadow table ').html('<tr><th>TOTAL</th><th></th><th class="totalCost"></th></tr>');
+                        // $('.bag-btn').addClass('bag-btn').prop('disabled', true);
+                        $('.bag-btn').text('buy');
+                        // $('.addToCart').addClass('addToCart');
+                        $('.bag-btn').prop('disabled', false);
+                        $('#modalShadow').modal('close');
+                    }
+                }
+            });
+        }
+
+    });
+</script>
